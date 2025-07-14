@@ -4,6 +4,7 @@ import React, { useState, useRef, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Text } from '@react-three/drei'
 import * as THREE from 'three'
+import { MeshStandardMaterial } from 'three'
 
 // Sample city data - replace with your actual data
 const cityData = [
@@ -59,7 +60,13 @@ function DateFruit({ position, cityIndex, dateIndex, onClick }) {
     ctx.fillRect(0, 0, 32, 32)
     
     const texture = new THREE.CanvasTexture(canvas)
-    return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.6, metalness: 0.15 })
+    const mat = new MeshStandardMaterial({ 
+      map: texture, 
+      roughness: 0.6, 
+      metalness: 0.15,
+      shadowSide: THREE.FrontSide
+    })
+    return mat
   }, [fillPercentage, city.color])
 
   useFrame((state) => {
@@ -74,8 +81,10 @@ function DateFruit({ position, cityIndex, dateIndex, onClick }) {
     <mesh
       ref={meshRef}
       position={position}
-      scale={hovered ? [1.4, 1.4, 1] : [1, 2, 1]} // y is 2x for ellipsoid effect
+      scale={hovered ? [1.4, 1.4, 1] : [1, 2, 1]}
       material={material}
+      castShadow
+      receiveShadow
       onPointerOver={(e) => {
         e.stopPropagation()
         setHovered(true)
@@ -173,6 +182,8 @@ function PalmFrond({ branchIndex, onClick }) {
           pos.z + Math.sin(leafletAngle) * offsetDistance
         ]}
         rotation={[0, leafletAngle, Math.PI/5 + (Math.random() - 0.5) * 0.1]}
+        castShadow
+        receiveShadow
       >
         <planeGeometry args={[leafletSize, 0.1 + Math.random() * 0.02]} />
         <meshLambertMaterial color={grad} side={THREE.DoubleSide} />
@@ -188,6 +199,8 @@ function PalmFrond({ branchIndex, onClick }) {
           pos.z - Math.sin(leafletAngle) * offsetDistance
         ]}
         rotation={[0, leafletAngle, -Math.PI/5 + (Math.random() - 0.5) * 0.1]}
+        castShadow
+        receiveShadow
       >
         <planeGeometry args={[leafletSize, 0.1 + Math.random() * 0.02]} />
         <meshLambertMaterial color={grad} side={THREE.DoubleSide} />
@@ -251,7 +264,12 @@ function DatePalmTree({ onClick }) {
     const radius = 0.35 - (i * 0.011);
     const segmentHeight = 0.48;
     trunkSegments.push(
-      <mesh key={i} position={[x, y, z]}>
+      <mesh
+        key={i}
+        position={[x, y, z]}
+        castShadow
+        receiveShadow
+      >
         <cylinderGeometry args={[radius - 0.015, radius, segmentHeight, 18]} />
         <meshStandardMaterial color="#8B5C2A" roughness={0.7} metalness={0.1} />
       </mesh>
@@ -259,7 +277,12 @@ function DatePalmTree({ onClick }) {
     // Add trunk texture rings
     if (i > 0) {
       trunkSegments.push(
-        <mesh key={`ring-${i}`} position={[x, y - segmentHeight/4, z]}>
+        <mesh 
+          key={`ring-${i}`} 
+          position={[x, y - segmentHeight/4, z]}
+          castShadow
+          receiveShadow
+        >
           <torusGeometry args={[radius + 0.01, 0.025, 12, 24]} />
           <meshStandardMaterial color="#6B3F1D" roughness={0.5} metalness={0.2} />
         </mesh>
@@ -278,7 +301,7 @@ function DatePalmTree({ onClick }) {
     )
   }
 
-  // The top of the trunk is at y = -2 + (trunkHeight-1)*0.48 + segmentHeight/2
+  // The top of the trunk is at y = -2 + (trunkHeight-1) * 0.48 + segmentHeight/2
   const topY = -2 + (trunkHeight - 1) * 0.48 + 0.24;
   return (
     <group ref={treeRef}>
@@ -286,7 +309,7 @@ function DatePalmTree({ onClick }) {
       {trunkSegments}
       {/* Crown/base where fronds emerge - move to top of trunk */}
       <mesh position={[0, topY, 0]}>
-        <sphereGeometry args={[0.4, 16, 12]} />
+        <sphereGeometry args={[0.2, 16, 12]} />
         <meshLambertMaterial color="#8B4513" />
       </mesh>
       {/* Fronds - move to top of trunk */}
@@ -421,7 +444,7 @@ export default function DatePalmHero() {
       </div>
       
       {/* 3D Canvas - Right side, tree positioned to touch bottom and much larger */}
-      <div className="absolute left-1/2 top-1/2 w-3/5 h-[100vh] z-20 flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute left-1/2 top-1/2 w-full h-[100vh] z-20 flex items-center justify-center -translate-x-1/2 -translate-y-1/2">
         <Canvas 
           camera={{ position: [5, 18, 0.5], fov: 50 }}
           style={{ 
@@ -432,11 +455,51 @@ export default function DatePalmHero() {
             width: '100%', 
             height: '100%' 
           }}
+          shadows="soft"
+          gl={{ antialias: true }}
         >
-          <ambientLight intensity={0.8} />
-          <directionalLight position={[0, 20, 20]} intensity={1.3} castShadow />
-          <pointLight position={[0, 10, -10]} intensity={0.6} />
-          <hemisphereLight groundColor="#e2c290" color="#b3e6ff" intensity={0.8} />
+          {/* Base ambient light for general illumination */}
+          <ambientLight intensity={0.4} />
+          
+          {/* Main sunlight - casting shadows */}
+          <directionalLight 
+            position={[10, 30, 5]} 
+            intensity={1.5}
+            castShadow
+            shadow-mapSize-width={2048}
+            shadow-mapSize-height={2048}
+            shadow-camera-far={50}
+            shadow-camera-left={-10}
+            shadow-camera-right={10}
+            shadow-camera-top={10}
+            shadow-camera-bottom={-10}
+            shadow-bias={-0.001}
+          />
+          
+          {/* Secondary rim light for depth */}
+          <directionalLight 
+            position={[-5, 15, -10]} 
+            intensity={0.8}
+            color="#FDB813"
+          />
+          
+          {/* Warm ground reflection */}
+          <hemisphereLight 
+            groundColor="#e2c290" 
+            color="#b3e6ff" 
+            intensity={0.6} 
+          />
+
+          {/* Ground plane to receive shadows */}
+          <mesh 
+            rotation={[-Math.PI / 2, 0, 0]} 
+            position={[0, -5, 0]} 
+            receiveShadow
+          >
+            <planeGeometry args={[100, 100]} />
+            <shadowMaterial transparent opacity={0.4} />
+          </mesh>
+
           {/* Palm tree, bottom right, not overlapping text */}
           <group position={[0, -5, 0]} scale={[0.9, 0.9, 0.9]}>
             <DatePalmTree onClick={handleDateClick} />

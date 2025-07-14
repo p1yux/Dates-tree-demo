@@ -1,0 +1,11 @@
+Model Information:
+* title:	Realistic Palm Tree 2 Free
+* source:	https://sketchfab.com/3d-models/realistic-palm-tree-2-free-d05c8ffb6ec64a7184c4b673e21f7224
+* author:	Next Spring (https://sketchfab.com/NextSpring)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Realistic Palm Tree 2 Free" (https://sketchfab.com/3d-models/realistic-palm-tree-2-free-d05c8ffb6ec64a7184c4b673e21f7224) by Next Spring (https://sketchfab.com/NextSpring) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
