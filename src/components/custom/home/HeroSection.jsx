@@ -5,7 +5,6 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, useGLTF, Text } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Tunisia 24 cities data with sales stats
 const tunisianCities = [
   { name: 'Tunis', sales: 1250, growth: 15.3, orders: 89, quality: 4.8 },
   { name: 'Sfax', sales: 980, growth: 12.7, orders: 67, quality: 4.6 },
@@ -33,7 +32,7 @@ const tunisianCities = [
   { name: 'Manouba', sales: 580, growth: 8.9, orders: 34, quality: 4.3 }
 ]
 
-// Sales Stats Popup Component
+// Sales Stats Popup
 function SalesStatsPopup({ cityData, onClose }) {
   if (!cityData) return null
   
@@ -148,7 +147,6 @@ function DateFruit({ position, cityColor }) {
 function CityLabel({ position, cityData, index, onClick }) {
   const [hovered, setHovered] = useState(false)
   
-  // Generate color based on city index
   const colors = [
     '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b',
     '#6c5ce7', '#a29bfe', '#fd79a8', '#00b894', '#00cec9', '#fdcb6e',
@@ -158,7 +156,6 @@ function CityLabel({ position, cityData, index, onClick }) {
   
   const cityColor = colors[index % colors.length]
   
-  // Generate date positions around the city
   const datePositions = []
   const numDates = 3 + Math.floor(Math.random() * 4) // 3-6 dates per city
   
@@ -176,7 +173,6 @@ function CityLabel({ position, cityData, index, onClick }) {
   
   return (
     <group position={position}>
-      {/* Clickable background for city name */}
       <mesh 
         position={[0, 4, -0.2]} 
         rotation={[-Math.PI / 6, 0, 0]}
@@ -204,7 +200,6 @@ function CityLabel({ position, cityData, index, onClick }) {
         />
       </mesh>
       
-      {/* Rounded corners for the background */}
       <mesh 
         position={[-cityData.name.length * 0.5 - 1.2, 4, -0.2]} 
         rotation={[-Math.PI / 6, 0, 0]}
@@ -256,7 +251,6 @@ function CityLabel({ position, cityData, index, onClick }) {
         />
       </mesh>
       
-      {/* City name text - clickable */}
       <Text
         position={[0, 4, 0.3]}
         fontSize={1.5}
@@ -289,7 +283,6 @@ function CityLabel({ position, cityData, index, onClick }) {
         {cityData.name}
       </Text>
       
-      {/* City indicator sphere */}
       <mesh 
         position={[0, 1, 0]}
         onPointerOver={(e) => {
@@ -325,7 +318,7 @@ function CityLabel({ position, cityData, index, onClick }) {
   )
 }
 
-// Complete Date Palm Tree 3D Model Component - including land and grass
+// Complete Date Palm Tree 3D Model Component
 function DatePalmTree3D({ onCityClick }) {
   const { scene, materials } = useGLTF('/3d/date-palm/scene.gltf')
   const treeRef = useRef()
@@ -361,13 +354,10 @@ function DatePalmTree3D({ onCityClick }) {
     if (treeRef.current) {
       // Fixed rotation only on X-axis - no position movement
       treeRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.02
-      // Keep position completely fixed
       treeRef.current.position.set(0, 0, 0)
     }
   })
 
-  // Define positions for cities on the palm tree branches
-  // Higher positions with some floating in air around the palm tree
   const branchPositions = [
     // // Top tier fronds (highest branches) - floating in air
     [25, 60, 15],   // Tunis - floating above main branch
@@ -404,7 +394,7 @@ function DatePalmTree3D({ onCityClick }) {
 
   return (
     <group ref={treeRef}>
-      {/* The complete 3D palm tree model with all components (tree, land, grass) */}
+      {/* The complete 3D palm tree model with all components*/}
       <primitive 
         object={clonedScene} 
         scale={[20, 10, 20]}
@@ -413,7 +403,6 @@ function DatePalmTree3D({ onCityClick }) {
         receiveShadow
       />
       
-      {/* City labels positioned on the branches */}
       {tunisianCities.map((cityData, index) => (
         <CityLabel
           key={cityData.name}
@@ -430,7 +419,6 @@ function DatePalmTree3D({ onCityClick }) {
 // Preload the GLTF model
 useGLTF.preload('/3d/date-palm/scene.gltf')
 
-// Main Professional Hero Component
 export default function DatePalmHero() {
   const [selectedCity, setSelectedCity] = useState(null)
 
@@ -488,7 +476,7 @@ export default function DatePalmHero() {
           shadows="soft"
           gl={{ antialias: true }}
         >
-          {/* Base ambient light for general illumination */}
+
           <ambientLight intensity={0.9} />
           
           {/* Main sunlight - casting shadows */}
@@ -506,21 +494,18 @@ export default function DatePalmHero() {
             shadow-bias={-0.001}
           />
           
-          {/* Secondary rim light for depth */}
           <directionalLight 
             position={[-30, 80, -60]} 
             intensity={0.8}
             color="#FDB813"
           />
           
-          {/* Warm ground reflection */}
           <hemisphereLight 
             groundColor="#e2c290" 
             color="#b3e6ff" 
             intensity={0.6} 
           />
 
-          {/* Ground plane to receive shadows */}
           <mesh 
             rotation={[-Math.PI / 2, 0, 0]} 
             position={[0, -40, 0]} 
